@@ -1,0 +1,30 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org",
+            "only": ["wpackagist-plugin/*", "wpackagist-theme/*"]
+        }
+    ],
+    "require": {
+        "composer/installers": "^2.3.0",
+        "wpackagist-plugin/wordpress-seo": "^26.2",
+        "wpackagist-plugin/safe-svg": "^2.4.0",
+        "wpackagist-plugin/redis-cache": "^2.7.0"
+
+    },
+    "extra": {
+        "installer-paths": {
+            "web/wp-content/plugins/{$name}/": ["type:wordpress-plugin"]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "pestphp/pest-plugin": true
+        }
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.8"
+    }
+}

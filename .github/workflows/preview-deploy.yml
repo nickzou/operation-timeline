@@ -1,0 +1,87 @@
+name: Deploy Preview
+
+on:
+    push:
+        branches:
+            - "*"
+            - "!main"
+            - "!staging"
+            - "!dev"
+            - "!wip/**"
+            - "!dependabot/**"
+
+jobs:
+    deploy-preview:
+        runs-on: ubuntu-latest
+
+        concurrency:
+            group: preview-${{ github.ref }}
+            cancel-in-progress: false
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: "22"
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4" # or '8.1', '8.3', '7.4', etc.
+                  tools: composer:v2
+
+            - name: Check if new branch
+              id: branch-check
+              run: |
+                  if [ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]; then
+                    echo "IS_NEW=true" >> "$GITHUB_OUTPUT"
+                    echo "This is a new branch!"
+                  else
+                    echo "IS_NEW=false" >> "$GITHUB_OUTPUT"
+                    echo "This is a push to existing branch"
+                  fi
+
+            - name: Deploy preview environment
+              if: steps.branch-check.outputs.IS_NEW == 'true'
+              uses: appleboy/ssh-action@v1.2.2
+              with:
+                  host: ${{ secrets.DROPLET_IP }}
+                  username: root
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  script: |
+                      /root/scripts/deploy-preview.sh "${{ github.ref_name }}"
+
+            - name: Install Dependencies
+              run: |
+                  npm install
+                  composer update 
+                  composer update -d ./web/wp-content/themes/${{secrets.THEME_SLUG}}
+
+            - name: Build
+              run: npm run prod
+
+            # - name: Run Tests
+            #   run: test commands
+
+            - name: Deploy Plugins and Themes
+              uses: easingthemes/ssh-deploy@main
+              with:
+                  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+                  REMOTE_HOST: ${{ secrets.DROPLET_IP }}
+                  REMOTE_USER: root
+                  SOURCE: "./web/wp-content/"
+                  TARGET: "/var/www/${{ github.ref_name }}/wp-content/"
+                  ARGS: "-avzc"
+
+            - name: Change Permissions of Deployed Code
+              uses: appleboy/ssh-action@v1.2.2
+              with:
+                  host: ${{ secrets.DROPLET_IP }}
+                  username: root
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  script: |
+                      sudo chown -R www-data:www-data /var/www/${{ github.ref_name }}/wp-content
+                      sudo chmod -R 755 /var/www/${{ github.ref_name }}/wp-content
