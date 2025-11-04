@@ -7,7 +7,7 @@
  */
 
 // Load password validation functions
-require_once __DIR__ . '/is_password_too_common.php';
+require_once __DIR__ . "/is_password_too_common.php";
 
 /**
  * Validate registration password

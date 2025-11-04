@@ -7,7 +7,7 @@
 use PHPUnit\Framework\TestCase;
 
 // Load bootstrap file with WordPress function stubs
-require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . "/bootstrap.php";
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ require_once __DIR__ . '/bootstrap.php';
 |
 */
 
-uses(TestCase::class)->in('Unit');
+uses(TestCase::class)->in("Unit");
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +33,7 @@ uses(TestCase::class)->in('Unit');
 |
 */
 
-expect()->extend('toBeOne', function () {
+expect()->extend("toBeOne", function () {
     return $this->toBe(1);
 });
 
