@@ -11,8 +11,11 @@ on:
 jobs:
     cleanup-preview:
         runs-on: ubuntu-latest
-        # Only run if it's a feature branch (not main/master)
-        if: github.event.ref != 'refs/heads/main' && github.event.ref != 'refs/heads/master'
+        # Only run if it's a feature branch (not main/master) AND infrastructure is deployed
+        if: |
+            github.event.ref != 'refs/heads/main' &&
+            github.event.ref != 'refs/heads/master' &&
+            secrets.DROPLET_IP != ''
 
         steps:
             - name: Extract branch name
@@ -29,10 +32,17 @@ jobs:
                   echo "Cleaning up branch: ${BRANCH}"
 
             - name: Teardown preview environment
+              continue-on-error: true # Don't fail workflow if cleanup fails
               uses: appleboy/ssh-action@v1.2.2
               with:
                   host: ${{ secrets.DROPLET_IP }}
                   username: root
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
-                      /root/scripts/cleanup-preview.sh "${{ steps.branch.outputs.BRANCH_NAME }}"
+                      # Check if preview exists before cleanup
+                      if [ -d "/var/www/${{ steps.branch.outputs.BRANCH_NAME }}" ]; then
+                          /root/scripts/cleanup-preview.sh "${{ steps.branch.outputs.BRANCH_NAME }}"
+                          echo "✅ Cleaned up preview for ${{ steps.branch.outputs.BRANCH_NAME }}"
+                      else
+                          echo "⏭️  No preview environment found for ${{ steps.branch.outputs.BRANCH_NAME }}"
+                      fi
