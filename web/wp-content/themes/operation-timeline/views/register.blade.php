@@ -23,7 +23,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="" class="space-y-6">
+                <form method="POST" action="" novalidate class="space-y-6">
                     <?php wp_nonce_field("custom_registration_nonce", "registration_nonce"); ?>
 
                     <!-- Username -->
