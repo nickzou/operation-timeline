@@ -13,7 +13,7 @@ function enqueue_registration_form_script()
         // Enqueue Alpine.js Simple Validate plugin from CDN
         wp_enqueue_script(
             "alpine-simple-validate",
-            "https://cdn.jsdelivr.net/npm/alpinejs-plugin-simple-validate@1/dist/simple-validate.min.js",
+            "https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js",
             [],
             "1.0.0",
             true, // Load in footer, before Alpine.js
