@@ -10,7 +10,7 @@
  */
 
 // Load the password validation function
-require_once __DIR__ . '/../../web/wp-content/themes/operation-timeline/inc/is_password_too_common.php';
+require_once __DIR__ . '/../../web/wp-content/themes/operation-timeline/inc/user_registration/is_password_too_common.php';
 
 describe('Common Password Detection', function () {
     test('detects common password "password"', function () {
