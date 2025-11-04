@@ -1,6 +1,6 @@
 @import "tailwindcss" source(none);
-@source "./web/wp-content/themes/base-theme/views";
-@source "./web/wp-content/themes/base-theme/inc";
+@source "./web/wp-content/themes/operation-timeline/views";
+@source "./web/wp-content/themes/operation-timeline/inc";
 
 @variant dark (.dark &);
 

@@ -2,8 +2,8 @@
   "open": false,
   "proxy": "localhost:8888",
   "files": [
-        "web/wp-content/themes/base-theme/views",
-        "web/wp-content/themes/base-theme/inc",
+        "web/wp-content/themes/operation-timeline/views",
+        "web/wp-content/themes/operation-timeline/inc",
         "src"
     ],
   "watchEvents": ["add", "change"],

@@ -5,7 +5,7 @@
         "./web/wp-content/plugins/safe-svg"
     ],
     "themes": [
-        "./web/wp-content/themes/base-theme"
+        "./web/wp-content/themes/operation-timeline"
     ],
     "mappings": {
         "wp-content/uploads": "./web/wp-content/uploads",
