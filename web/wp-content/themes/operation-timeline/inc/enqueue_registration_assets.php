@@ -11,7 +11,6 @@ function enqueue_registration_form_assets()
 {
     // Only enqueue on the User Registration page template
     if (is_page_template("page-register.php")) {
-        wp_enqueue_script("alpine-simple-validate");
         wp_enqueue_script("registration-form");
     }
 }

@@ -37,21 +37,12 @@ function register_theme_js_files()
         ],
     );
 
-    // Alpine.js Simple Validate plugin
-    wp_register_script(
-        "alpine-simple-validate",
-        "https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js",
-        [],
-        "1.0.0",
-        true,
-    );
-
     // Registration form script
     $registration_form_path = "{$theme_directory}/js/registration-form.js";
     wp_register_script(
         "registration-form",
         "{$theme_uri}/js/registration-form.js",
-        ["alpine-simple-validate"],
+        [],
         file_exists($registration_form_path) ? filemtime($registration_form_path) : "1.0.0",
         true,
     );

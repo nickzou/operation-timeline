@@ -1,6 +1,16 @@
 /**
- * User Registration Form - Alpine.js Component with Simple Validate Plugin
+ * User Registration Form - Alpine.js Component
  */
+
+interface RegistrationFormData {
+	username: string;
+	email: string;
+	password: string;
+	confirm_password: string;
+	first_name: string;
+	last_name: string;
+	terms: boolean;
+}
 
 interface ValidationErrors {
 	[key: string]: string;
@@ -17,80 +27,104 @@ interface AjaxResponse {
 
 document.addEventListener("alpine:init", () => {
 	Alpine.data("registrationForm", () => ({
-		// Form data - bound directly to inputs with x-model
-		username: "",
-		email: "",
-		password: "",
-		confirm_password: "",
-		first_name: "",
-		last_name: "",
-		terms: false,
+		formData: {
+			username: "",
+			email: "",
+			password: "",
+			confirm_password: "",
+			first_name: "",
+			last_name: "",
+			terms: false,
+		} as RegistrationFormData,
 
-		// Validation rules for simple-validate plugin
-		rules: {
-			username: {
-				required: true,
-				minlength: 3,
-				pattern: /^[a-zA-Z0-9_]+$/,
-			},
-			email: {
-				required: true,
-				email: true,
-			},
-			password: {
-				required: true,
-				minlength: 8,
-			},
-			confirm_password: {
-				required: true,
-				match: "password",
-			},
-			terms: {
-				required: true,
-			},
-		},
-
-		// Custom validation messages
-		messages: {
-			username: {
-				required: "Username is required",
-				minlength: "Username must be at least 3 characters",
-				pattern:
-					"Username can only contain letters, numbers, and underscores",
-			},
-			email: {
-				required: "Email is required",
-				email: "Please enter a valid email address",
-			},
-			password: {
-				required: "Password is required",
-				minlength: "Password must be at least 8 characters",
-			},
-			confirm_password: {
-				required: "Please confirm your password",
-				match: "Passwords do not match",
-			},
-			terms: {
-				required: "You must agree to the Terms and Conditions",
-			},
-		},
-
-		// Backend validation errors (from server response)
-		serverErrors: {} as ValidationErrors,
-
-		// UI state
+		errors: {} as ValidationErrors,
 		successMessage: "",
 		errorMessage: "",
 		isSubmitting: false,
+
+		validateField(fieldName: keyof RegistrationFormData): void {
+			// Clear previous error for this field
+			delete this.errors[fieldName];
+
+			switch (fieldName) {
+				case "username":
+					if (
+						!this.formData.username ||
+						this.formData.username.trim().length === 0
+					) {
+						this.errors.username = "Username is required";
+					} else if (this.formData.username.length < 3) {
+						this.errors.username = "Username must be at least 3 characters";
+					} else if (!/^[a-zA-Z0-9_]+$/.test(this.formData.username)) {
+						this.errors.username =
+							"Username can only contain letters, numbers, and underscores";
+					}
+					break;
+
+				case "email":
+					if (
+						!this.formData.email ||
+						this.formData.email.trim().length === 0
+					) {
+						this.errors.email = "Email is required";
+					} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email)) {
+						this.errors.email = "Please enter a valid email address";
+					}
+					break;
+
+				case "password":
+					if (
+						!this.formData.password ||
+						this.formData.password.length === 0
+					) {
+						this.errors.password = "Password is required";
+					} else if (this.formData.password.length < 8) {
+						this.errors.password = "Password must be at least 8 characters";
+					}
+					break;
+
+				case "confirm_password":
+					if (
+						!this.formData.confirm_password ||
+						this.formData.confirm_password.length === 0
+					) {
+						this.errors.confirm_password = "Please confirm your password";
+					} else if (
+						this.formData.password !== this.formData.confirm_password
+					) {
+						this.errors.confirm_password = "Passwords do not match";
+					}
+					break;
+
+				case "terms":
+					if (!this.formData.terms) {
+						this.errors.terms = "You must agree to the Terms and Conditions";
+					}
+					break;
+			}
+		},
+
+		validateAll(): boolean {
+			this.errors = {};
+			this.validateField("username");
+			this.validateField("email");
+			this.validateField("password");
+			this.validateField("confirm_password");
+			this.validateField("terms");
+			return Object.keys(this.errors).length === 0;
+		},
 
 		async submitForm(event: Event): Promise<void> {
 			// Clear previous messages
 			this.successMessage = "";
 			this.errorMessage = "";
-			this.serverErrors = {};
 
-			// Note: simple-validate plugin handles frontend validation automatically
-			// If form is invalid, the plugin will prevent submission
+			// Validate all fields
+			if (!this.validateAll()) {
+				this.errorMessage = "Please fix the errors below before submitting.";
+				window.scrollTo({ top: 0, behavior: "smooth" });
+				return;
+			}
 
 			this.isSubmitting = true;
 
@@ -110,13 +144,15 @@ document.addEventListener("alpine:init", () => {
 					this.errorMessage = "";
 
 					// Reset form
-					this.username = "";
-					this.email = "";
-					this.password = "";
-					this.confirm_password = "";
-					this.first_name = "";
-					this.last_name = "";
-					this.terms = false;
+					this.formData = {
+						username: "",
+						email: "",
+						password: "",
+						confirm_password: "",
+						first_name: "",
+						last_name: "",
+						terms: false,
+					};
 
 					// Redirect after 1.5 seconds
 					if (result.data.redirect) {
@@ -128,9 +164,9 @@ document.addEventListener("alpine:init", () => {
 					this.errorMessage =
 						result.data.message || "Registration failed. Please try again.";
 
-					// Display backend validation errors
+					// Display field-specific errors
 					if (result.data.errors) {
-						this.serverErrors = result.data.errors;
+						this.errors = result.data.errors;
 					}
 				}
 			} catch (error) {
