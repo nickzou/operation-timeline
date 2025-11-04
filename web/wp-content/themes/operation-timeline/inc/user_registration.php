@@ -162,9 +162,11 @@ function handle_custom_user_registration()
     ]);
 }
 
-// Register AJAX handlers
-// For logged-out users (most registration scenarios)
-add_action("wp_ajax_nopriv_custom_user_registration", "handle_custom_user_registration");
+// Register AJAX handlers only if WordPress is loaded
+if (function_exists("add_action")) {
+    // For logged-out users (most registration scenarios)
+    add_action("wp_ajax_nopriv_custom_user_registration", "handle_custom_user_registration");
 
-// For logged-in users (in case they try to register while logged in)
-add_action("wp_ajax_custom_user_registration", "handle_custom_user_registration");
+    // For logged-in users (in case they try to register while logged in)
+    add_action("wp_ajax_custom_user_registration", "handle_custom_user_registration");
+}
