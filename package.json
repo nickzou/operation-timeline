@@ -8,9 +8,10 @@
   "scripts": {
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "./vendor/bin/pest",
-    "test:e2e": "playwright test",
+    "test:e2e": "npm run test:e2e:cleanup && playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
+    "test:e2e:cleanup": "wp-env run cli wp user delete $(wp-env run cli wp user list --field=ID --search='testuser*' --format=csv | tail -n +2 | tr '\\n' ' ') --yes 2>/dev/null || true",
     "composer:install:dev": "composer install",
     "composer:update:dev": "composer update",
     "composer:install:theme": "composer install -d ./web/wp-content/themes/operation-timeline",
