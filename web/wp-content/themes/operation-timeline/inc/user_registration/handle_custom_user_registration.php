@@ -29,7 +29,6 @@ function handle_custom_user_registration()
     $confirm_password = $_POST["confirm_password"] ?? "";
     $first_name = sanitize_text_field($_POST["first_name"] ?? "");
     $last_name = sanitize_text_field($_POST["last_name"] ?? "");
-    $terms = isset($_POST["terms"]) && $_POST["terms"] === "on";
 
     // Validation errors array
     $errors = [];
@@ -53,11 +52,6 @@ function handle_custom_user_registration()
     $confirm_password_error = validate_registration_confirm_password($password, $confirm_password);
     if ($confirm_password_error !== null) {
         $errors["confirm_password"] = $confirm_password_error;
-    }
-
-    $terms_error = validate_registration_terms($terms);
-    if ($terms_error !== null) {
-        $errors["terms"] = $terms_error;
     }
 
     // If there are validation errors, return them

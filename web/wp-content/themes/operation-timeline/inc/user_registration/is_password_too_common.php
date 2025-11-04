@@ -17,6 +17,7 @@ function is_password_too_common($password)
     $common_passwords = [
         "password",
         "password123",
+        "Password123!",
         "12345678",
         "qwerty",
         "abc123",
@@ -40,5 +41,5 @@ function is_password_too_common($password)
         "football",
     ];
 
-    return in_array(strtolower($password), $common_passwords);
+    return in_array($password, $common_passwords);
 }

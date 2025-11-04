@@ -211,28 +211,6 @@
                         />
                     </div>
 
-                    <!-- Terms and Conditions -->
-                    <div>
-                        <div class="flex items-start">
-                            <input
-                                type="checkbox"
-                                id="terms"
-                                name="terms"
-                                x-model="formData.terms"
-                                @change="validateField('terms')"
-                                required
-                                :class="errors.terms ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'"
-                                class="mt-1 h-4 w-4 rounded text-blue-600"
-                            />
-                            <label for="terms" class="ml-2 text-sm text-gray-600">
-                                I agree to the
-                                <a href="#" class="text-blue-600 underline hover:text-blue-800">Terms and Conditions</a>
-                                *
-                            </label>
-                        </div>
-                        <p x-show="errors.terms" x-text="errors.terms" class="mt-1 text-xs text-red-600"></p>
-                    </div>
-
                     <!-- Submit Button -->
                     <div>
                         <button

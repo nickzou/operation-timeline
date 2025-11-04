@@ -9,7 +9,6 @@ interface RegistrationFormData {
 	confirm_password: string;
 	first_name: string;
 	last_name: string;
-	terms: boolean;
 }
 
 interface ValidationErrors {
@@ -34,7 +33,6 @@ document.addEventListener("alpine:init", () => {
 			confirm_password: "",
 			first_name: "",
 			last_name: "",
-			terms: false,
 		} as RegistrationFormData,
 
 		errors: {} as ValidationErrors,
@@ -111,12 +109,6 @@ document.addEventListener("alpine:init", () => {
 						this.errors.confirm_password = "Passwords do not match";
 					}
 					break;
-
-				case "terms":
-					if (!this.formData.terms) {
-						this.errors.terms = "You must agree to the Terms and Conditions";
-					}
-					break;
 			}
 		},
 
@@ -126,7 +118,6 @@ document.addEventListener("alpine:init", () => {
 			this.validateField("email");
 			this.validateField("password");
 			this.validateField("confirm_password");
-			this.validateField("terms");
 			return Object.keys(this.errors).length === 0;
 		},
 
@@ -238,7 +229,6 @@ document.addEventListener("alpine:init", () => {
 						confirm_password: "",
 						first_name: "",
 						last_name: "",
-						terms: false,
 					};
 
 					// Redirect after 1.5 seconds
