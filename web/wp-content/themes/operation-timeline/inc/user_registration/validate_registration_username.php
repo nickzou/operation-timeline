@@ -22,7 +22,8 @@ function validate_registration_username($username)
         return "Username must be at least 3 characters.";
     }
 
-    if (!validate_username($username)) {
+    // WordPress validation (SQL safety, reserved words) AND stricter pattern (alphanumeric + underscore only)
+    if (!validate_username($username) || !preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
         return "Username contains invalid characters.";
     }
 

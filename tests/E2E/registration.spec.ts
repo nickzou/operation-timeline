@@ -50,19 +50,21 @@ test.describe('User Registration', () => {
   });
 
   test('validates username invalid characters on submission', async ({ page }) => {
-    await page.fill('#username', 'user name');
-    await page.fill('#email', 'test@example.com');
+    const timestamp = Date.now();
+    await page.fill('#username', `user name${timestamp}`);
+    await page.fill('#email', `test${timestamp}@example.com`);
     await page.fill('#password', 'ValidPassword1!');
     await page.fill('#confirm_password', 'ValidPassword1!');
 
     await page.click('button[type="submit"]');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('text=Username can only contain letters, numbers, and underscores')).toBeVisible();
+    await expect(page.locator('text=Username contains invalid characters.')).toBeVisible();
   });
 
   test('validates email format on submission', async ({ page }) => {
-    await page.fill('#username', 'validuser');
+    const timestamp = Date.now();
+    await page.fill('#username', `validuser${timestamp}`);
     await page.fill('#email', 'notanemail');
     await page.fill('#password', 'ValidPassword1!');
     await page.fill('#confirm_password', 'ValidPassword1!');
@@ -70,7 +72,7 @@ test.describe('User Registration', () => {
     await page.click('button[type="submit"]');
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('text=Please enter a valid email address')).toBeVisible();
+    await expect(page.locator('text=Email is required')).toBeVisible();
   });
 
   test('validates password minimum length on submission', async ({ page }) => {

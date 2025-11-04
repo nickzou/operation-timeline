@@ -47,7 +47,7 @@
                     <div>
                         <label for="email" class="mb-2 block text-sm font-medium text-gray-700">Email *</label>
                         <input
-                            type="email"
+                            type="text"
                             id="email"
                             name="email"
                             value="{{ $form_data['email'] ?? '' }}"
