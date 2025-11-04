@@ -84,15 +84,76 @@
                             name="password"
                             x-model="formData.password"
                             @blur="validateField('password')"
+                            @input="validateField('password')"
                             required
                             minlength="8"
+                            maxlength="64"
                             :class="errors.password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'"
                             class="w-full rounded-md border px-4 py-2 focus:border-blue-500 focus:ring-2"
-                            placeholder="At least 8 characters"
+                            placeholder="Create a strong password"
                         />
-                        <p x-show="!errors.password" class="mt-1 text-xs text-gray-500">
-                            Must be at least 8 characters long
-                        </p>
+
+                        <!-- Password Strength Indicator -->
+                        <div x-show="formData.password" class="mt-2">
+                            <div class="mb-1 flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-600">Password Strength:</span>
+                                <span
+                                    class="text-xs font-semibold"
+                                    :class="{
+                                        'text-red-600': passwordStrength.color === 'red',
+                                        'text-orange-600': passwordStrength.color === 'orange',
+                                        'text-yellow-600': passwordStrength.color === 'yellow',
+                                        'text-green-600': passwordStrength.color === 'green'
+                                    }"
+                                    x-text="passwordStrength.label"
+                                ></span>
+                            </div>
+                            <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                                <div
+                                    class="h-full transition-all duration-300"
+                                    :class="{
+                                        'bg-red-500': passwordStrength.color === 'red',
+                                        'bg-orange-500': passwordStrength.color === 'orange',
+                                        'bg-yellow-500': passwordStrength.color === 'yellow',
+                                        'bg-green-500': passwordStrength.color === 'green'
+                                    }"
+                                    :style="'width: ' + (passwordStrength.score / 7 * 100) + '%'"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <!-- Password Requirements -->
+                        <div x-show="!errors.password && formData.password" class="mt-2 text-xs text-gray-600">
+                            <p class="mb-1 font-medium">Password must contain:</p>
+                            <ul class="ml-4 space-y-0.5">
+                                <li :class="formData.password.length >= 8 ? 'text-green-600' : 'text-gray-500'">
+                                    <span x-text="formData.password.length >= 8 ? '✓' : '○'"></span>
+                                    At least 8 characters
+                                </li>
+                                <li :class="/[A-Z]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'">
+                                    <span x-text="/[A-Z]/.test(formData.password) ? '✓' : '○'"></span>
+                                    One uppercase letter
+                                </li>
+                                <li :class="/[a-z]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'">
+                                    <span x-text="/[a-z]/.test(formData.password) ? '✓' : '○'"></span>
+                                    One lowercase letter
+                                </li>
+                                <li :class="/[0-9]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'">
+                                    <span x-text="/[0-9]/.test(formData.password) ? '✓' : '○'"></span>
+                                    One number
+                                </li>
+                                <li
+                                    :class="/[!@#$%^&*(),.?\\:{}|<>]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'"
+                                >
+                                    <span
+                                        x-text="/[! @#$%^&*(),.?\:{}|<>]/.test(formData.password) ? '✓' : '○'""
+                                    ></span>
+                                    One special character
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Error Message -->
                         <p
                             x-show="errors.password"
                             x-text="errors.password"

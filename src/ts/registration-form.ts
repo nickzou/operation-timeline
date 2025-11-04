@@ -80,6 +80,22 @@ document.addEventListener("alpine:init", () => {
 						this.errors.password = "Password is required";
 					} else if (this.formData.password.length < 8) {
 						this.errors.password = "Password must be at least 8 characters";
+					} else if (this.formData.password.length > 64) {
+						this.errors.password = "Password must not exceed 64 characters";
+					} else if (!/[A-Z]/.test(this.formData.password)) {
+						this.errors.password =
+							"Password must contain at least one uppercase letter";
+					} else if (!/[a-z]/.test(this.formData.password)) {
+						this.errors.password =
+							"Password must contain at least one lowercase letter";
+					} else if (!/[0-9]/.test(this.formData.password)) {
+						this.errors.password = "Password must contain at least one number";
+					} else if (!/[!@#$%^&*(),.?":{}|<>]/.test(this.formData.password)) {
+						this.errors.password =
+							"Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>)";
+					} else if (this.isPasswordTooCommon(this.formData.password)) {
+						this.errors.password =
+							"This password is too common. Please choose a more secure password";
 					}
 					break;
 
@@ -112,6 +128,77 @@ document.addEventListener("alpine:init", () => {
 			this.validateField("confirm_password");
 			this.validateField("terms");
 			return Object.keys(this.errors).length === 0;
+		},
+
+		isPasswordTooCommon(password: string): boolean {
+			const commonPasswords = [
+				"password",
+				"password123",
+				"12345678",
+				"qwerty",
+				"abc123",
+				"monkey",
+				"letmein",
+				"trustno1",
+				"dragon",
+				"baseball",
+				"iloveyou",
+				"master",
+				"sunshine",
+				"ashley",
+				"bailey",
+				"passw0rd",
+				"shadow",
+				"123123",
+				"654321",
+				"superman",
+				"qazwsx",
+				"michael",
+				"football",
+			];
+
+			return commonPasswords.includes(password.toLowerCase());
+		},
+
+		calculatePasswordStrength(password: string): {
+			score: number;
+			label: string;
+			color: string;
+		} {
+			if (!password) {
+				return { score: 0, label: "", color: "" };
+			}
+
+			let score = 0;
+
+			// Length scoring
+			if (password.length >= 8) score += 1;
+			if (password.length >= 12) score += 1;
+			if (password.length >= 16) score += 1;
+
+			// Complexity scoring
+			if (/[a-z]/.test(password)) score += 1;
+			if (/[A-Z]/.test(password)) score += 1;
+			if (/[0-9]/.test(password)) score += 1;
+			if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 1;
+
+			// Penalty for common passwords
+			if (this.isPasswordTooCommon(password)) score = Math.max(0, score - 3);
+
+			// Determine strength label and color
+			if (score <= 2) {
+				return { score, label: "Weak", color: "red" };
+			} else if (score <= 4) {
+				return { score, label: "Fair", color: "orange" };
+			} else if (score <= 6) {
+				return { score, label: "Good", color: "yellow" };
+			} else {
+				return { score, label: "Strong", color: "green" };
+			}
+		},
+
+		get passwordStrength() {
+			return this.calculatePasswordStrength(this.formData.password);
 		},
 
 		async submitForm(event: Event): Promise<void> {

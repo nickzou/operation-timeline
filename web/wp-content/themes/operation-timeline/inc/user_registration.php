@@ -7,6 +7,43 @@
  */
 
 /**
+ * Check if password is too common
+ *
+ * @param string $password Password to check
+ * @return bool True if password is too common
+ */
+function is_password_too_common($password)
+{
+    $common_passwords = [
+        "password",
+        "password123",
+        "12345678",
+        "qwerty",
+        "abc123",
+        "monkey",
+        "letmein",
+        "trustno1",
+        "dragon",
+        "baseball",
+        "iloveyou",
+        "master",
+        "sunshine",
+        "ashley",
+        "bailey",
+        "passw0rd",
+        "shadow",
+        "123123",
+        "654321",
+        "superman",
+        "qazwsx",
+        "michael",
+        "football",
+    ];
+
+    return in_array(strtolower($password), $common_passwords);
+}
+
+/**
  * Process user registration
  */
 function handle_custom_user_registration()
@@ -14,10 +51,7 @@ function handle_custom_user_registration()
     // Verify nonce for security
     if (
         !isset($_POST["registration_nonce"]) ||
-        !wp_verify_nonce(
-            $_POST["registration_nonce"],
-            "custom_registration_nonce"
-        )
+        !wp_verify_nonce($_POST["registration_nonce"], "custom_registration_nonce")
     ) {
         wp_send_json_error([
             "message" => "Security verification failed. Please refresh and try again.",
@@ -62,6 +96,18 @@ function handle_custom_user_registration()
         $errors["password"] = "Password is required.";
     } elseif (strlen($password) < 8) {
         $errors["password"] = "Password must be at least 8 characters.";
+    } elseif (strlen($password) > 64) {
+        $errors["password"] = "Password must not exceed 64 characters.";
+    } elseif (!preg_match("/[A-Z]/", $password)) {
+        $errors["password"] = "Password must contain at least one uppercase letter.";
+    } elseif (!preg_match("/[a-z]/", $password)) {
+        $errors["password"] = "Password must contain at least one lowercase letter.";
+    } elseif (!preg_match("/[0-9]/", $password)) {
+        $errors["password"] = "Password must contain at least one number.";
+    } elseif (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        $errors["password"] = "Password must contain at least one special character (!@#$%^&*(),.?\":{}|<>).";
+    } elseif (is_password_too_common($password)) {
+        $errors["password"] = "This password is too common. Please choose a more secure password.";
     }
 
     // Validate password confirmation
@@ -73,8 +119,7 @@ function handle_custom_user_registration()
 
     // Validate terms acceptance
     if (!$terms) {
-        $errors["terms"] =
-            "You must agree to the Terms and Conditions to register.";
+        $errors["terms"] = "You must agree to the Terms and Conditions to register.";
     }
 
     // If there are validation errors, return them
@@ -101,8 +146,7 @@ function handle_custom_user_registration()
     // Check for errors
     if (is_wp_error($user_id)) {
         wp_send_json_error([
-            "message" =>
-                "Registration failed: " . $user_id->get_error_message(),
+            "message" => "Registration failed: " . $user_id->get_error_message(),
         ]);
         return;
     }
@@ -113,21 +157,14 @@ function handle_custom_user_registration()
 
     // Send success response
     wp_send_json_success([
-        "message" =>
-            "Registration successful! Welcome to Operation Timeline.",
+        "message" => "Registration successful! Welcome to Operation Timeline.",
         "redirect" => home_url("/"), // Redirect to homepage
     ]);
 }
 
 // Register AJAX handlers
 // For logged-out users (most registration scenarios)
-add_action(
-    "wp_ajax_nopriv_custom_user_registration",
-    "handle_custom_user_registration"
-);
+add_action("wp_ajax_nopriv_custom_user_registration", "handle_custom_user_registration");
 
 // For logged-in users (in case they try to register while logged in)
-add_action(
-    "wp_ajax_custom_user_registration",
-    "handle_custom_user_registration"
-);
+add_action("wp_ajax_custom_user_registration", "handle_custom_user_registration");
