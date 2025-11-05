@@ -33,7 +33,7 @@ jobs:
                   php-version: "8.4" # or '8.1', '8.3', '7.4', etc.
                   tools: composer:v2
 
-            - name: Check if new branch
+            - name: Check if new branch and droplet exists
               id: branch-check
               run: |
                   if [ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]; then
@@ -44,8 +44,16 @@ jobs:
                     echo "This is a push to existing branch"
                   fi
 
+                  if [ -n "${{ secrets.DROPLET_ID }}" ]; then
+                    echo "HAS_DROPLET=true" >> "$GITHUB_OUTPUT"
+                    echo "Droplet ID exists"
+                  else
+                    echo "HAS_DROPLET=false" >> "$GITHUB_OUTPUT"
+                    echo "No droplet ID configured"
+                  fi
+
             - name: Deploy preview environment
-              if: steps.branch-check.outputs.IS_NEW == 'true'
+              if: steps.branch-check.outputs.IS_NEW == 'true' && steps.branch-check.outputs.HAS_DROPLET == 'true'
               uses: appleboy/ssh-action@v1.2.2
               with:
                   host: ${{ secrets.DROPLET_IP }}
@@ -57,16 +65,17 @@ jobs:
             - name: Install Dependencies
               run: |
                   npm install
-                  composer update 
+                  composer update
                   composer update -d ./web/wp-content/themes/${{secrets.THEME_SLUG}}
 
             - name: Build
               run: npm run prod
 
-            # - name: Run Tests
-            #   run: test commands
+            - name: Run Tests
+              run: npm run test
 
             - name: Deploy Plugins and Themes
+              if: steps.branch-check.outputs.HAS_DROPLET == 'true'
               uses: easingthemes/ssh-deploy@main
               with:
                   SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -77,6 +86,7 @@ jobs:
                   ARGS: "-avzc"
 
             - name: Change Permissions of Deployed Code
+              if: steps.branch-check.outputs.HAS_DROPLET == 'true'
               uses: appleboy/ssh-action@v1.2.2
               with:
                   host: ${{ secrets.DROPLET_IP }}

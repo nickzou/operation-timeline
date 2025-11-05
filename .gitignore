@@ -11,6 +11,11 @@ node_modules
 vendor
 .parcel-cache
 
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
 web/wp-content/plugins/
 web/wp-content/themes/*/css/
 web/wp-content/themes/*/js/

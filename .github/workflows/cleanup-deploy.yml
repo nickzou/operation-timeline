@@ -11,13 +11,23 @@ on:
 jobs:
     cleanup-preview:
         runs-on: ubuntu-latest
-        # Only run if it's a feature branch (not main) AND infrastructure is deployed
-        if: |
-            github.event.ref != 'refs/heads/main' &&
-            secrets.DROPLET_IP != ''
+        # Only run if it's a feature branch (not main)
+        if: github.event.ref != 'refs/heads/main'
 
         steps:
+            - name: Check if droplet exists
+              id: droplet-check
+              run: |
+                  if [ -n "${{ secrets.DROPLET_ID }}" ]; then
+                    echo "HAS_DROPLET=true" >> "$GITHUB_OUTPUT"
+                    echo "Droplet ID exists, will cleanup"
+                  else
+                    echo "HAS_DROPLET=false" >> "$GITHUB_OUTPUT"
+                    echo "No droplet configured, skipping cleanup"
+                  fi
+
             - name: Extract branch name
+              if: steps.droplet-check.outputs.HAS_DROPLET == 'true'
               id: branch
               run: |
                   if [ "${{ github.event_name }}" == "delete" ]; then
@@ -31,6 +41,7 @@ jobs:
                   echo "Cleaning up branch: ${BRANCH}"
 
             - name: Teardown preview environment
+              if: steps.droplet-check.outputs.HAS_DROPLET == 'true'
               continue-on-error: true # Don't fail workflow if cleanup fails
               uses: appleboy/ssh-action@v1.2.2
               with:
