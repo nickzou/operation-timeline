@@ -64,7 +64,7 @@
     "@biomejs/biome": "^2.2.6",
     "@playwright/test": "^1.56.1",
     "@prettier/plugin-php": "^0.24.0",
-    "@tailwindcss/cli": "^4.1.15",
+    "@tailwindcss/cli": "^4.1.17",
     "@types/alpinejs": "^3.13.11",
     "@types/wordpress__block-editor": "^14.21.0",
     "@wordpress/block-editor": "^15.6.0",
