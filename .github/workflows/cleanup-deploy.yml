@@ -43,7 +43,7 @@ jobs:
             - name: Teardown preview environment
               if: steps.droplet-check.outputs.HAS_DROPLET == 'true'
               continue-on-error: true # Don't fail workflow if cleanup fails
-              uses: appleboy/ssh-action@v1.2.2
+              uses: appleboy/ssh-action@v1.2.3
               with:
                   host: ${{ secrets.DROPLET_IP }}
                   username: root
